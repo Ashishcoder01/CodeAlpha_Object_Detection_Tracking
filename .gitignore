@@ -10,12 +10,10 @@ __pycache__/
 output/*
 !output/.gitkeep
 
-*.log
+input/*
+!input/.gitkeep
 
+*.log
 .streamlit/secrets.toml
 
 *.pt
-
-input/*
-
-input/*
