@@ -1,69 +1,110 @@
 # VisionTrack AI — Object Detection & Tracking
 
-VisionTrack AI is a computer-vision application built for real-time and offline object detection and tracking. It supports image analysis, video detection, multi-object tracking, and live webcam detection through a professional Streamlit interface.
+VisionTrack AI is a computer-vision web application for detecting and tracking objects in images, uploaded videos, and live webcam streams. Built with Python, Streamlit, and Ultralytics YOLO11, it provides annotated visual results, confidence scores, tracking IDs, and video exports through a single interface.
+
+<p align="center">
+  <a href="https://visiontrack-ai1.streamlit.app/"><strong>Launch Live Demo</strong></a>
+  &nbsp; • &nbsp;
+  <a href="https://github.com/Ashishcoder01/CodeAlpha_Object_Detection_Tracking">View Source Code</a>
+</p>
+
+## Table of Contents
+
+- [Live Demo](#live-demo)
+- [Features](#features)
+- [Detection Modes](#detection-modes)
+- [How It Works](#how-it-works)
+- [Technology Stack](#technology-stack)
+- [Project Structure](#project-structure)
+- [Run Locally](#run-locally)
+- [Model Weights](#model-weights)
+- [Tests](#tests)
+- [Deployment Notes](#deployment-notes)
+- [Limitations](#limitations)
+- [Future Improvements](#future-improvements)
+- [Project Context](#project-context)
+- [Author](#author)
+
+## Live Demo
+
+**Try VisionTrack AI:** https://visiontrack-ai1.streamlit.app/
+
+The deployed application supports image detection, video processing and tracking, and live webcam detection. Browser and camera permissions may be required for the corresponding features.
+
+> **Note:** Live inference speed depends on available compute resources, input resolution, and video length.
 
 ## Features
 
-- Image object detection
-- Video object detection
-- Multi-object tracking with persistent tracking IDs
-- Real-time webcam detection
-- Stable bounding boxes for live tracking
-- Confidence-based detection
-- YOLO11 models through Ultralytics
-- ByteTrack-based object tracking
-- Processed video preview and download
-- Clean Streamlit interface
+- **Image object detection** with annotated bounding boxes and confidence scores.
+- **Video processing** to produce an annotated output video.
+- **Multi-object tracking** with persistent track IDs across frames.
+- **Live webcam detection and tracking** using Streamlit-WebRTC.
+- **YOLO11 inference** using Ultralytics models.
+- **ByteTrack tracking pipeline** for associating detections across frames.
+- **Detection statistics** including detected classes and processing information.
+- **Processed video download** and browser-compatible video conversion when FFmpeg and the required encoder are available.
+- **Streamlit interface** for running the available workflows from one application.
 
 ## Detection Modes
 
-### Image Detection
-Upload an image and VisionTrack AI identifies supported objects, draws bounding boxes, displays confidence scores, and provides detection statistics.
+### 1. Image Detection
 
-### Video Detection
-Upload a video and process its frames with YOLO-based object detection. The application generates an annotated output video.
+Upload an image to detect supported objects. The application draws bounding boxes, displays confidence scores, and provides detection results.
 
-### Video Tracking
-Track objects across video frames while maintaining persistent IDs using the tracking pipeline.
+### 2. Video Detection
 
-### Live Camera
-Use a webcam as a continuous computer-vision stream without taking a photo. YOLO11 performs real-time detection and tracking directly on the incoming camera frames.
+Upload a video to process its frames with YOLO-based detection. The application creates an annotated video that can be downloaded.
+
+### 3. Object Tracking
+
+Track detected objects across video frames. The tracking pipeline associates objects between frames and can display persistent tracking IDs.
+
+### 4. Live Webcam
+
+Use a supported camera through the browser. YOLO11 performs detection and tracking on incoming frames, with cached track overlays used to reduce visible box flicker between inference frames.
+
+## How It Works
+
+1. The user supplies an image, video, or live camera stream.
+2. OpenCV or WebRTC provides frames to the inference pipeline.
+3. Ultralytics YOLO11 detects supported object classes.
+4. The tracking pipeline uses ByteTrack to associate detections over time where tracking is enabled.
+5. VisionTrack AI renders annotations and statistics, and provides processed results for preview or download.
+
+```text
+Image / Uploaded Video / Webcam
+               |
+               v
+        OpenCV / WebRTC
+               |
+               v
+            YOLO11
+               |
+        +------+------+
+        |             |
+    Detection      Tracking
+        |          ByteTrack
+        +------+------+
+               |
+               v
+      Annotated Results
+       and Statistics
+```
 
 ## Technology Stack
 
-- Python
-- Streamlit
-- Ultralytics YOLO11
-- OpenCV
-- NumPy
-- Pillow
-- Streamlit-WebRTC
-- PyAV
-- Requests
-- ByteTrack
-
-## Project Workflow
-
-```text
-Image / Video / Webcam
-          |
-          v
-      OpenCV / WebRTC
-          |
-          v
-       YOLO11
-          |
-    +-----+-----+
-    |           |
-Detection    Tracking
-    |           |
-    |        ByteTrack
-    |           |
-    +-----+-----+
-          |
-          v
- Annotated Results
-```
+| Technology | Purpose |
+|---|---|
+| Python | Application and processing logic |
+| Streamlit | Web application interface |
+| Ultralytics YOLO11 | Object detection and inference |
+| OpenCV | Image and video processing, annotations |
+| NumPy | Array and frame operations |
+| Pillow | Image support |
+| Streamlit-WebRTC | Browser camera streaming |
+| PyAV | Video frame handling for WebRTC |
+| ByteTrack | Multi-object tracking |
+| FFmpeg | Optional H.264 conversion for browser-compatible video playback |
 
 ## Project Structure
 
@@ -74,6 +115,7 @@ CodeAlpha_Object_Detection_Tracking/
 ├── tracker.py
 ├── utils.py
 ├── requirements.txt
+├── packages.txt
 ├── test_detector.py
 ├── test_tracker.py
 ├── test_video_detection.py
@@ -84,52 +126,64 @@ CodeAlpha_Object_Detection_Tracking/
 └── .gitignore
 ```
 
-## Installation
+Generated output files and model weights may be excluded from Git by the repository's ignore rules.
+
+## Run Locally
+
+### Prerequisites
+
+- Python 3.12 recommended
+- Git
+- A working camera and browser permission for live webcam mode
+- FFmpeg with the `libx264` encoder for browser-compatible H.264 video conversion (optional; needed for that conversion workflow)
 
 ### 1. Clone the repository
 
 ```bash
-git clone <YOUR_GITHUB_REPOSITORY_URL>
+git clone https://github.com/Ashishcoder01/CodeAlpha_Object_Detection_Tracking.git
 cd CodeAlpha_Object_Detection_Tracking
 ```
 
-### 2. Create a virtual environment
+### 2. Create and activate a virtual environment
 
-Windows PowerShell:
+**Windows PowerShell**
 
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 ```
 
-### 3. Install dependencies
+**macOS / Linux**
 
-```powershell
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+### 3. Install Python dependencies
+
+```bash
+python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
 ### 4. Start the application
 
-```powershell
+```bash
 python -m streamlit run app.py
 ```
 
-The application will open in your browser.
+Open the local URL printed in the terminal by Streamlit.
 
-## YOLO Models
+## Model Weights
 
-The project uses Ultralytics YOLO11 models. Model weights are intentionally excluded from Git because binary model files increase repository size.
+The application uses Ultralytics YOLO11 weights, such as `yolo11n.pt`. Model files are not committed to the repository to avoid storing large binary files in Git.
 
-If the required model is not already available, Ultralytics can download it when the application loads it.
+When `yolo11n.pt` is missing, the application asks Ultralytics to load the named model, which can download the weights if network access is available. The first model load may therefore take longer and requires the deployment environment to be able to access the model source.
 
-The project has been tested with:
+## Tests
 
-- `yolo11n.pt` — lightweight model for fast inference
-- `yolo11s.pt` — larger model for improved detection quality
-
-## Testing
-
-Run the available tests from the project directory:
+Run the available project tests from the repository root:
 
 ```powershell
 python test_detector.py
@@ -137,32 +191,45 @@ python test_tracker.py
 python test_video_detection.py
 ```
 
+These scripts exercise the detector, tracker, and video-detection workflows. Test requirements and available input data may vary by local environment.
+
+## Deployment Notes
+
+The live application is hosted on Streamlit Community Cloud.
+
+- `requirements.txt` lists Python dependencies.
+- `packages.txt` lists system packages needed by the cloud environment, including FFmpeg for video conversion.
+- The deployed app must be able to download YOLO model weights if they are not already present.
+- Browser-compatible MP4 conversion requires FFmpeg with H.264 encoder support. If conversion is unavailable, the app may still provide the processed video for download.
+
 ## Limitations
 
-The pretrained YOLO model recognizes the object categories included in its training dataset. Objects outside those categories may be classified incorrectly or may not be detected.
-
-Live-camera performance also depends on the computer's CPU/GPU, camera resolution, and inference settings.
+- The pretrained model recognizes classes represented in its training data; unsupported or unfamiliar objects may not be detected or may be mislabeled.
+- Detection quality and speed depend on model choice, frame resolution, available CPU/GPU resources, and input-video characteristics.
+- Live webcam access depends on browser permissions and a supported device.
+- Browser-compatible video playback depends on successful H.264 conversion and browser codec support.
 
 ## Future Improvements
 
-- Custom dataset training for domain-specific objects
-- Improved model selection and GPU acceleration
-- Advanced analytics and tracking statistics
-- Object counting and line-crossing detection
-- Custom alert/event rules
-- Additional export formats
-- Cloud deployment
+- Train or fine-tune models on domain-specific datasets.
+- Add object counting, line-crossing events, and configurable alerts.
+- Expand tracking analytics and downloadable reports.
+- Add additional model choices and performance controls.
+- Extend export options and evaluation metrics.
 
-## Academic / Internship Project
+## Project Context
 
-This project was developed as part of the **CodeAlpha Artificial Intelligence / Machine Learning Internship** project work.
+VisionTrack AI was developed as part of the CodeAlpha Artificial Intelligence / Machine Learning internship project work and is maintained as a portfolio project.
 
 ## Author
 
-**Ashish**
-
+**Ashish**  
 Computer Science & Engineering — AI/ML
+
+- **GitHub:** https://github.com/Ashishcoder01
+- **Project repository:** https://github.com/Ashishcoder01/CodeAlpha_Object_Detection_Tracking
+- **Live application:** https://visiontrack-ai1.streamlit.app/
 
 ## License
 
-This project is intended for educational and portfolio purposes.
+This repository is intended for educational and portfolio use. Check the licenses of third-party libraries and pretrained model weights before redistributing them or using them commercially.
