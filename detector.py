@@ -20,16 +20,20 @@ class ObjectDetector:
             model_path = project_dir / model_path
 
         if not model_path.exists():
-            raise FileNotFoundError(
-                f"Model not found: {model_path}"
-            )
+            if model_path.name == "yolo11n.pt":
+                self.model = YOLO("yolo11n.pt")
+                model_path = Path(
+                    self.model.model_name
+                ) if hasattr(self.model, "model_name") else model_path
+            else:
+                raise FileNotFoundError(
+                    f"Model not found: {model_path}"
+                )
+        else:
+            self.model = YOLO(str(model_path))
 
         self.model_path = str(model_path)
         self.confidence = confidence
-
-        self.model = YOLO(
-            self.model_path
-        )
 
     def detect_image(
         self,
@@ -151,3 +155,4 @@ class ObjectDetector:
             )
 
         return counts
+    
