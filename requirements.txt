@@ -5,3 +5,4 @@ Pillow
 streamlit-webrtc
 av
 requests
+lap
