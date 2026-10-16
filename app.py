@@ -272,28 +272,31 @@ def update_temporal_detections(
     return confirmed, updated_detections
 
 
-# ============================================================
+# ======================================
 # MODEL CHECK
-# ============================================================
+# ======================================
 
-if not MODEL_PATH.exists():
-    st.error("YOLO model file was not found.")
-    st.code(str(MODEL_PATH))
-    st.info("Run this command from the project folder:")
-    st.code(
-        'python -c "from ultralytics import YOLO; '
-        'YOLO(\'yolo11n.pt\')"'
+@st.cache_resource
+def load_yolo_model():
+    """Load the local YOLO model or download it if missing."""
+    return YOLO(
+        str(MODEL_PATH)
+        if MODEL_PATH.exists()
+        else "yolo11n.pt"
     )
-    st.stop()
 
+try:
+    model = load_yolo_model()
+except Exception as exc:
+    st.error("Unable to load the YOLO model.")
+    st.code(f"{type(exc).__name__}: {exc}")
+    st.stop()
 
 # ============================================================
 # MODEL LOADER
 # ============================================================
 
-@st.cache_resource
-def load_yolo_model():
-    return YOLO(str(MODEL_PATH))
+
 
 
 # ============================================================
@@ -469,11 +472,11 @@ class LiveCameraProcessor(VideoProcessorBase):
         self.tracked_cache = {}
 
         try:
-            if not MODEL_PATH.exists():
-                raise FileNotFoundError(f"Model not found: {MODEL_PATH}")
-            self.model = YOLO(str(MODEL_PATH))
+            self.model = load_yolo_model()
         except Exception as exc:
-            self.model_error = f"{type(exc).__name__}: {str(exc)[:220]}"
+            self.model_error = (
+                f"{type(exc).__name__}: {str(exc)[:220]}"
+            )
 
     def recv(self, frame):
         image = frame.to_ndarray(format="bgr24")
